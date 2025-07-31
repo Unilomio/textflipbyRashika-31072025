@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Text Flip Effect – Rashika / WhiteSmoke / Unilomio</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Montserrat:wght@600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-accent: #ff8a36;
+        --secondary-accent: #fd6600;
+        --dark-bg: #181828;
+        --light-bg: #fffbee;
+        --light-text: #e0e7ff;
+        --glass-bg: rgba(34, 38, 48, 0.79);
+        --glass-shadow: 0 4px 28px 0 rgba(0, 0, 0, 0.13);
+      }
+      body.light-theme {
+        --primary-accent: #e6772e;
+        --secondary-accent: #fdbc40;
+        --dark-bg: #fffbee;
+        --light-bg: #f6f4fd;
+        --light-text: #23233e;
+        --glass-bg: rgba(255, 255, 255, 0.85);
+        --glass-shadow: 0 6px 24px 0 rgba(181, 140, 85, 0.11);
+      }
+      body {
+        background: linear-gradient(
+          135deg,
+          var(--dark-bg) 0%,
+          var(--light-bg) 98%
+        );
+        color: var(--light-text);
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: background 0.4s, color 0.4s;
+      }
+      .flip-header {
+        margin-top: 2.5rem;
+        margin-bottom: 2.2rem;
+        text-align: center;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 2.15rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        color: var(--primary-accent);
+        text-shadow: 0 6px 24px rgba(50, 130, 255, 0.12),
+          0 1.5px 10px rgba(0, 0, 0, 0.11);
+        border-bottom: 4px solid var(--primary-accent);
+        max-width: 90vw;
+        padding-bottom: 0.4rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+        display: inline-block;
+      }
+      .flip-container {
+        margin: 0 auto 2.5rem;
+        max-width: 470px;
+        width: 94vw;
+        position: relative;
+        z-index: 1;
+      }
+      .page-glass {
+        background: var(--glass-bg);
+        box-shadow: var(--glass-shadow);
+        border-radius: 22px;
+        min-height: 360px;
+        min-width: 320px;
+        width: 100%;
+        max-width: 470px;
+        position: relative;
+        overflow: hidden;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        perspective: 1200px;
+        transition: background 0.3s, box-shadow 0.3s, color 0.3s;
+      }
+
+      /* CSS for 3D flip effect */
+      .page-flip-wrapper {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 0.65s cubic-bezier(0.48, 1.25, 0.39, 0.99);
+      }
+
+      .card-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        box-sizing: border-box;
+        text-align: center;
+      }
+
+      .card-front {
+        transform: rotateY(0deg);
+      }
+
+      .card-back {
+        transform: rotateY(180deg);
+      }
+
+      /* Class to apply for flipping the current card */
+      .page-flip-wrapper.is-flipped {
+        transform: rotateY(-180deg); /* Flips to show the back */
+      }
+
+      .page-glass h2,
+      .page-glass h1 {
+        font-family: 'Montserrat', sans-serif;
+        margin: 0 0 0.95em 0;
+        font-size: 2.1em;
+        color: var(--primary-accent);
+        text-shadow: 0 3px 16px rgba(50, 180, 255, 0.1);
+      }
+      .page-glass p {
+        font-size: 1.08em;
+        line-height: 1.6;
+        margin: 0 0 0.75em 0;
+      }
+      /* Removed .page-glass .card-index as it's now outside */
+      #cardCounter {
+        font-size: 0.98em;
+        opacity: 0.75;
+        text-align: center;
+        margin-top: 1.5rem; /* Space above buttons */
+        margin-bottom: 1rem; /* Space below card */
+        color: var(--light-text); /* Ensure it matches theme */
+        transition: color 0.4s;
+      }
+      .flip-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin: 2.3rem auto 1rem auto;
+      }
+      .flip-btn {
+        background: var(--primary-accent);
+        color: #fff;
+        border-radius: 9999px;
+        border: none;
+        font-weight: 700;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.08em;
+        padding: 0.68rem 2rem 0.7rem 2rem;
+        box-shadow: 0 4px 18px 0 rgba(255, 138, 54, 0.15);
+        cursor: pointer;
+        letter-spacing: 0.01em;
+        transition: background 0.21s;
+      }
+      .flip-btn[disabled] {
+        background: #ccc;
+        color: #888;
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+      .toggle-theme-btn {
+        background: none;
+        border: none;
+        font-size: 1.6em;
+        cursor: pointer;
+        margin-top: 2em;
+        color: var(--primary-accent);
+        transition: color 0.4s;
+      }
+      .toggle-theme-btn:active {
+        filter: brightness(1.18);
+      }
+      @media (max-width: 640px) {
+        .page-glass {
+          min-width: 98vw;
+          max-width: 99vw;
+          border-radius: 13px;
+        }
+        .flip-header {
+          font-size: 1.25rem;
+          min-width: 0;
+        }
+        .flip-container {
+          max-width: 99vw;
+        }
+        .page-glass h2 {
+          font-size: 1.2em;
+        }
+        .flip-btn {
+          padding: 0.48rem 0.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flip-header">
+      Text Flip Effect – Rashika </br> <h5>WhiteSmoke / Unilomio</h5>
+    </div>
+    <div class="flip-container">
+      <div id="pageContent" class="page-glass">
+        <div id="pageFlipWrapper" class="page-flip-wrapper">
+          <div id="cardFront" class="card-face card-front">
+            <!-- Front content will render here -->
+          </div>
+          <div id="cardBack" class="card-face card-back">
+            <!-- Back content will render here -->
+          </div>
+        </div>
+      </div>
+      <div id="cardCounter"></div>
+      <div class="flip-buttons">
+        <button id="prevBtn" class="flip-btn" disabled>← Previous Card</button>
+        <button id="flipCurrentCardBtn" class="flip-btn">Flip Text</button>
+        <button id="nextBtn" class="flip-btn">Next Card →</button>
+      </div>
+    </div>
+    <button
+      class="toggle-theme-btn"
+      id="themeToggle"
+      title="Switch dark/light mode"
+    >
+      <span id="sunIcon">☀️</span>
+      <span id="moonIcon" style="display: none">🌙</span>
+    </button>
+    <script>
+      const pages = [
+        {
+          front: {
+            title: 'Welcome!',
+            text: 'This is the front of the first card. Click "Flip Text" below to see its back!',
+          },
+          back: {
+            title: 'Welcome Back!',
+            text: 'This is the back of the first card. You can put more details, a call to action, or a summary here. Pretty neat, right?',
+          },
+        },
+        {
+          front: {
+            title: 'Another Text Card',
+            text: 'This is the front of the second card. Each card can have its own unique front and back content!',
+          },
+          back: {
+            title: 'The Other Side',
+            text: 'This is the hidden gem of the second card. Imagine a cool fact, a short bio, or a surprising detail here!',
+          },
+        },
+        {
+          front: {
+            title: 'Fully Responsive',
+            text: 'This card demonstrates responsiveness. It works beautifully on desktop and mobile. Flip it to learn more!',
+          },
+          back: {
+            title: 'Responsive Details',
+            text: 'The layout adapts fluidly to different screen sizes, ensuring a great user experience everywhere. No pixel left behind!',
+          },
+        },
+        {
+          front: {
+            title: 'Zero Bloat',
+            text: 'The front of our "Zero Bloat" card. We keep things lean and clean here. Flip to discover how!',
+          },
+          back: {
+            title: 'Bloat-Free Zone',
+            text: 'No heavy packages, frameworks, or complications—just clean HTML, CSS, and a sprinkle of JS for max reusability. Brand and remix as needed!',
+          },
+        },
+        {
+          front: {
+            title: 'Want More Effects?',
+            text: "This is the final card's front. We can add even more cool effects. Flip to see a hint!",
+          },
+          back: {
+            title: 'Future Possibilities',
+            text: 'Want a curl, swipe, or 3D hardcover book style? Just say so, and I can build it for you next!',
+          },
+        },
+      ];
+
+      let currentPage = 0;
+      let isFrontVisible = true; // Tracks if the front face of the current card is visible
+      let isFlipping = false; // Prevents multiple flips at once
+
+      const pageFlipWrapper = document.getElementById('pageFlipWrapper');
+      const cardFront = document.getElementById('cardFront');
+      const cardBack = document.getElementById('cardBack');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const flipCurrentCardBtn = document.getElementById('flipCurrentCardBtn'); // New button
+      const cardCounter = document.getElementById('cardCounter'); // New element for card numbering
+
+      // Function to update button states and card counter
+      function updateButtons() {
+        prevBtn.disabled = currentPage === 0;
+        nextBtn.disabled = currentPage === pages.length - 1;
+        flipCurrentCardBtn.disabled = isFlipping;
+        cardCounter.textContent = `Card ${currentPage + 1} of ${pages.length}`;
+      }
+
+      // Function to populate content for a specific face
+      function populateFaceContent(element, data) {
+        element.innerHTML = `
+          <h2>${data.title}</h2>
+          <p>${data.text}</p>
+        `;
+        // Removed card-index from here
+      }
+
+      // Function to render the current card (either front or back)
+      function renderCurrentCard() {
+        const currentCardData = pages[currentPage];
+
+        // Always populate both faces with the current card's data
+        // The CSS transform will determine which one is visible
+        populateFaceContent(cardFront, currentCardData.front);
+        populateFaceContent(cardBack, currentCardData.back);
+
+        // Ensure the wrapper is in the correct state (flipped or not)
+        if (isFrontVisible) {
+          pageFlipWrapper.classList.remove('is-flipped');
+        } else {
+          pageFlipWrapper.classList.add('is-flipped');
+        }
+        updateButtons();
+      }
+
+      // Function to toggle the current card's face (front <-> back)
+      function toggleCardFace() {
+        if (isFlipping) return;
+        isFlipping = true;
+
+        isFrontVisible = !isFrontVisible; // Toggle the state
+        pageFlipWrapper.classList.toggle('is-flipped'); // Toggle the flip class
+
+        // Wait for the transition to end before allowing new actions
+        pageFlipWrapper.addEventListener('transitionend', function handler() {
+          pageFlipWrapper.removeEventListener('transitionend', handler);
+          isFlipping = false;
+          updateButtons();
+        });
+      }
+
+      // Event listeners for navigation buttons
+      prevBtn.onclick = () => {
+        if (currentPage > 0 && !isFlipping) {
+          currentPage--;
+          isFrontVisible = true; // Always show front when navigating
+          renderCurrentCard();
+        }
+      };
+
+      nextBtn.onclick = () => {
+        if (currentPage < pages.length - 1 && !isFlipping) {
+          currentPage++;
+          isFrontVisible = true; // Always show front when navigating
+          renderCurrentCard();
+        }
+      };
+
+      // Event listener for the new "Flip Card" button
+      flipCurrentCardBtn.onclick = toggleCardFace;
+
+      // Theme toggle (sun/moon)
+      const themeToggle = document.getElementById('themeToggle');
+      const sunIcon = document.getElementById('sunIcon');
+      const moonIcon = document.getElementById('moonIcon');
+      function updateThemeIcons() {
+        const light = document.body.classList.contains('light-theme');
+        sunIcon.style.display = light ? 'none' : '';
+        moonIcon.style.display = light ? '' : 'none';
+      }
+      themeToggle.onclick = function () {
+        document.body.classList.toggle('light-theme');
+        updateThemeIcons();
+      };
+
+      // Initial render and theme setup on DOMContentLoaded
+      document.addEventListener('DOMContentLoaded', () => {
+        renderCurrentCard(); // Render the first card's front initially
+        updateThemeIcons(); // Ensure theme icons are correctly set on load
+      });
+    </script>
+  </body>
+</html>
